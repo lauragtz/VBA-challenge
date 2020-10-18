@@ -1,0 +1,169 @@
+Attribute VB_Name = "Module1"
+Sub stocks()
+
+'set an initial variable for holding ticker
+Dim Ticker As String
+'set an initial variable for holding Open Stocks
+Dim Open_Stock As Double
+'set an initial variable for holding Closed Stocks
+Dim Closed_Stock As Double
+'set an initial variable for Yearly Change
+Dim Yearly_Change As Double
+Dim Total_Stock_Volume As Long
+Total_Stock_Volume = 0
+
+
+'set an initial variable for percent change
+Dim Percent_Change As Double
+'set initial variable to Percent Increase
+Dim Percent_Increase As Double
+Percent_Increase = 0
+'set initial variable to Percent decrease
+Dim Percent_Decrease As Double
+Percent_Decrease = 0
+
+
+'set Workbook as a Variable
+Dim wk As Workbook
+'set Worksheet as a Varible
+Dim ws As Worksheet
+
+'keep track of each Year output
+Dim Summary_Table_Row As Integer
+Summary_Table_Row = 2
+
+'set values in cells
+'loop through every sheet in workbook
+For Each ws In ActiveWorkbook.Worksheets
+    ws.Activate
+    
+'LastRow
+Dim lastrow As Double
+    lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+'set up Summary Table Row
+    'place Ticker (R,C)
+    ws.Range("I1").Value = "Ticker"
+    'place Yearly Change
+    ws.Range("J1").Value = "Yearly Change"
+    'place Percent Change
+    ws.Range("K1").Value = "Percent Change"
+    'place Total Stock Volume
+    ws.Range("L1").Value = "Total Stock Volume"
+    
+    
+    '2nd part - challenge things to set
+    'set Greatest % increase
+    ws.Range("O2").Value = "Greatest % Increase"
+    'set Greatest % decrease
+    ws.Range("O3").Value = "Greatest % Decrease"
+    'set Greatest Total Value
+    ws.Range("O4").Value = "Greatest Total Value"
+    'set Ticker
+    ws.Range("P1").Value = "Ticker"
+    'set Value
+    ws.Range("Q1").Value = "Value"
+    
+
+'loop through all stocks for 1 year
+For i = 2 To lastrow
+
+    If Open_Stock = 0 Then
+        Yearly_Change = 0
+        Total_Stock_Volume = 0
+        
+    
+    Else
+        Yearly_Change = Closed_Stock - Open_Stock
+        Percent_Change = ((Closed_Stock - Open_Stock) / Open_Stock)
+
+
+    'check the same name under ticker
+    If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+    
+        'set Ticker name
+        Ticker = ws.Cells(i, 1).Value
+    
+        'add - total stock volume
+        Total_Stock_Volume = Total_Stock_Volume + ws.Cells(i, 7).Value
+    
+        'print the Ticker to the yearly summary table
+        ws.Range("I" & Summary_Table_Row).Value = Ticker
+        'print the total stock volume
+        ws.Range("L" & Summary_Table_Row).Value = Total_Stock_Volume
+    
+        'add 1 to the summary yearly table row
+        Summary_Table_Row = Summary_Table_Row + 1
+    
+        'reset the stock volume total
+        Total_Stock_Volume = 0
+
+    Else
+    
+        'add to the stock volume
+        Stock_Volume = Stock_Volume + ws.Cells(i, 7).Value
+        
+        'print
+        ws.Range("J" & Summary_Table_Row).Value = Yearly_Change
+        ws.Range("J" & Summary_Table_Row).NumberFormat = "0.00%"
+        ws.Range("K" & Summary_Table_Row).Value = Percent_Change
+        ws.Range("K" & Summary_Table_Row).NumberFormat = "0.00%"
+        
+  End If
+    
+    
+    'colors for changes
+    If ws.Range("J" & Summary_Table_Row).Value >= 0 Then
+    
+        'color is 4 and 3
+        ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+    
+    Else
+        ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+    
+    End If
+
+
+End If
+  
+Next i
+
+Summary_Table_Row = 2
+
+
+'table and value already set
+      ' Start Loop For Final Results
+For i = 2 To lastrow
+    If ws.Range("K" & i).Value > ws.Range("Q2").Value Then
+        ws.Range("Q2").Value = ws.Range("K" & i).Value
+        ws.Range("P2").Value = ws.Range("I" & i).Value
+
+End If
+
+If ws.Range("K" & i).Value < ws.Range("Q3").Value Then
+    ws.Range("Q3").Value = ws.Range("K" & i).Value
+    ws.Range("P3").Value = ws.Range("I" & i).Value
+End If
+
+If ws.Range("L" & i).Value > ws.Range("Q4").Value Then
+    ws.Range("Q4").Value = ws.Range("L" & i).Value
+    ws.Range("P4").Value = ws.Range("I" & i).Value
+    
+End If
+
+Next i
+
+' Format
+    ws.Range("Q2").NumberFormat = "0.00%"
+    ws.Range("Q3").NumberFormat = "0.00%"
+            
+' Format Table Columns To Auto Fit
+        ws.Columns("I:Q").AutoFit
+        
+
+
+
+'End loop at bottom!!
+Next ws
+
+End Sub
